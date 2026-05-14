@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - "**_fly"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      -
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      -
+        name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      -
+        name: Build and push
+        run: |
+          PUSH=true ./fly-build/build-docker.sh
