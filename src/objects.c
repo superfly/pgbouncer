@@ -1166,27 +1166,17 @@ static bool reset_on_release(PgSocket *server)
 bool life_over(PgSocket *server)
 {
 	PgPool *pool = server->pool;
-	usec_t lifetime_kill_gap = 0;
 	usec_t now = get_cached_time();
 	usec_t age = now - server->connect_time;
-	usec_t last_kill = now - pool->last_lifetime_disconnect;
 	usec_t server_lifetime = pool_server_lifetime(pool);
 
-	if (age < server_lifetime)
-		return false;
-
 	/*
-	 * Calculate the time that disconnects because of server_lifetime
-	 * must be separated.  This avoids the need to re-launch lot
-	 * of connections together.
+	 * FLY: remove PgBouncer's anti-connection-spike throttling.
+	 * The throttling implemented by upstream is extremely dependent on luck and timing.
+	 * In worst cases (clients with their own pooling) it's possible to have connections
+	 * linger for much, much longer than server_lifetime.
 	 */
-	if (pool_pool_size(pool) > 0)
-		lifetime_kill_gap = server_lifetime / pool_pool_size(pool);
-
-	if (last_kill >= lifetime_kill_gap)
-		return true;
-
-	return false;
+	return age >= server_lifetime;
 }
 
 /* connecting/active -> idle, unlink if needed */
