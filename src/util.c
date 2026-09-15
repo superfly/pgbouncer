@@ -32,6 +32,8 @@
 #include <openssl/evp.h>
 #endif
 
+#define PGBOUNCER_LOG_PREFIX "[[fly-mpg-pgbouncer]] "
+
 int log_socket_prefix(enum LogLevel lev, void *ctx, char *dst, unsigned int dstlen)
 {
 	const struct PgSocket *sock = ctx;
@@ -41,9 +43,9 @@ int log_socket_prefix(enum LogLevel lev, void *ctx, char *dst, unsigned int dstl
 	int port;
 	char stype;
 
-	/* no prefix */
+	/* Include the common prefix even without socket context. */
 	if (!sock)
-		return 0;
+		return snprintf(dst, dstlen, PGBOUNCER_LOG_PREFIX);
 
 	/* format prefix */
 	stype = is_server_socket(sock) ? 'S' : 'C';
@@ -65,17 +67,17 @@ int log_socket_prefix(enum LogLevel lev, void *ctx, char *dst, unsigned int dstl
 
 	if (pga_family(&sock->remote_addr) == AF_INET6) {
 		if (peer_id) {
-			return snprintf(dst, dstlen, "%c-%p: peer-%d@[%s]:%d ",
+			return snprintf(dst, dstlen, PGBOUNCER_LOG_PREFIX "%c-%p: peer-%d@[%s]:%d ",
 					stype, sock, peer_id, host, port);
 		}
-		return snprintf(dst, dstlen, "%c-%p: %s/%s@[%s]:%d ",
+		return snprintf(dst, dstlen, PGBOUNCER_LOG_PREFIX "%c-%p: %s/%s@[%s]:%d ",
 				stype, sock, db, user, host, port);
 	} else {
 		if (peer_id) {
-			return snprintf(dst, dstlen, "%c-%p: peer-%d@%s:%d ",
+			return snprintf(dst, dstlen, PGBOUNCER_LOG_PREFIX "%c-%p: peer-%d@%s:%d ",
 					stype, sock, peer_id, host, port);
 		}
-		return snprintf(dst, dstlen, "%c-%p: %s/%s@%s:%d ",
+		return snprintf(dst, dstlen, PGBOUNCER_LOG_PREFIX "%c-%p: %s/%s@%s:%d ",
 				stype, sock, db, user, host, port);
 	}
 }
