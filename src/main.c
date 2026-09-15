@@ -1001,6 +1001,7 @@ int main(int argc, char *argv[])
 		{NULL, 0, NULL, 0}
 	};
 
+	logging_prefix_cb = log_socket_prefix;
 	setprogname(basename(argv[0]));
 
 	/* parse cmdline */
@@ -1062,7 +1063,6 @@ int main(int argc, char *argv[])
 	main_config.loaded = true;
 	init_var_lookup(cf_track_extra_parameters);
 	init_caches();
-	logging_prefix_cb = log_socket_prefix;
 
 	if (!sbuf_tls_setup())
 		die("TLS setup failed");
