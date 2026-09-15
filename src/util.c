@@ -32,7 +32,7 @@
 #include <openssl/evp.h>
 #endif
 
-#define PGBOUNCER_LOG_PREFIX "[[fly-mpgv2-pgbouncer-logs]] "
+#define PGBOUNCER_LOG_PREFIX "[[fly-mpg-pgbouncer]] "
 
 int log_socket_prefix(enum LogLevel lev, void *ctx, char *dst, unsigned int dstlen)
 {
